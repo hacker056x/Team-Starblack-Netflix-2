@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Starblack Netflix</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* ===== ESTILO AEROSOL + FONDO NETFLIX ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: url('https://assets.nflxext.com/ffe/siteui/vlv3/7ea4545e-42d3-4ebf-82fd-0e1984dc6375/web/DO-es-20260316-TRIFECTA-perspective_5f63a8b1-be18-4c03-9cbe-fc57f9a2d3d5_small.jpg') center/cover fixed no-repeat;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Capa semi transparente (50% visible) */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 0;
+        }
+
+        /* Contenido por encima de la capa */
+        .container, .footer {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Tarjeta principal - efecto aerosol */
+        .main-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .main-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Header con degradado rojo Netflix */
+        .header {
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.9) 0%, rgba(176, 7, 16, 0.9) 100%);
+            backdrop-filter: blur(5px);
+            color: white;
+            padding: 35px 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            margin: 10px 0 0;
+            opacity: 0.95;
+        }
+
+        /* Contenido */
+        .content {
+            padding: 30px;
+        }
+
+        /* Tabs estilo aerosol */
+        .method-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding-bottom: 0;
+        }
+
+        .method-tab {
+            padding: 12px 25px;
+            cursor: pointer;
+            border-radius: 12px 12px 0 0;
+            transition: all 0.3s;
+            border: none;
+            background: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+        }
+
+        .method-tab:hover {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .method-tab.active {
+            background: rgba(229, 9, 20, 0.9);
+            color: white;
+            box-shadow: 0 -2px 10px rgba(229, 9, 20, 0.3);
+        }
+
+        .method-pane {
+            display: none;
+        }
+
+        .method-pane.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Formularios estilo aerosol */
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        textarea.form-control, input[type="file"].form-control {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        textarea.form-control:focus, input[type="file"].form-control:focus {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: #E50914;
+            box-shadow: 0 0 0 0.2rem rgba(229, 9, 20, 0.25);
+        }
+
+        /* Botón Netflix efecto brillo */
+        .btn-netflix {
+            background: rgba(229, 9, 20, 0.9);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-netflix:hover {
+            background: #E50914;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        /* Stats con efecto vidrio */
+        .stats {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stats h3 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        /* Tarjetas de resultado */
+        .results-area {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            max-height: 550px;
+            overflow-y: auto;
+        }
+
+        .results-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .results-area::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .results-area::-webkit-scrollbar-thumb {
+            background: #E50914;
+            border-radius: 10px;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 15px;
+            border-left: 4px solid #E50914;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .result-card:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .result-card.success {
+            border-left-color: #28a745;
+        }
+
+        .result-card.error {
+            border-left-color: #dc3545;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .token-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #E50914;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .result-card.success .token-badge {
+            background: #28a745;
+        }
+
+        .result-card.error .token-badge {
+            background: #dc3545;
+        }
+
+        .token-link {
+            word-break: break-all;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+
+        .copy-btn {
+            cursor: pointer;
+            padding: 5px 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            border: none;
+            padding: 8px 20px;
+            transition: all 0.3s;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        /* Footer estilo aerosol oscuro */
+        .footer {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer p {
+            margin: 5px 0;
+        }
+
+        .footer .credit {
+            color: #E50914;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .footer .copyright {
+            color: #aaa;
+            font-size: 12px;
+        }
+
+        .footer .social-links {
+            margin-top: 10px;
+        }
+
+        .footer .social-links a {
+            color: #aaa;
+            margin: 0 10px;
+            font-size: 18px;
+            transition: color 0.3s;
+            text-decoration: none;
+        }
+
+        .footer .social-links a:hover {
+            color: #E50914;
+        }
+
+        hr {
+            margin: 15px auto;
+            width: 50%;
+            border: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #E50914, transparent);
+        }
+
+        /* Alertas */
+        .alert {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            min-width: 300px;
+            max-width: 500px;
+            animation: slideInDown 0.5s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .method-tab {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .stats h3 {
+                font-size: 1.5rem;
+            }
+            
+            .footer .credit {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-card">
+            <div class="header">
+                <h1><i class="fa-solid fa-cookie-bite"></i> Team Starblack Netflix</h1>
+                <p>Generar Tokens a partir de cookies con formato Netscape.</p>
+            </div>
+            
+            <div class="content">
+                <div class="method-tabs">
+                    <button class="method-tab active" onclick="switchMethod('text')">
+                        <i class="fas fa-paste"></i> Pegar Cookies
+                    </button>
+                    <button class="method-tab" onclick="switchMethod('file')">
+                        <i class="fas fa-file-upload"></i> Subir Cookies
+                    </button>
+                </div>
+                
+                <div id="text-method" class="method-pane active">
+                    <label class="form-label fw-bold">Pegue sus cookies (formato Netscape):</label>
+                    <textarea class="form-control" id="cookies-text" rows="10" 
+                              placeholder=".netflix.com	TRUE	/	FALSE	1735689600	NetflixId	value1&#10;.netflix.com	TRUE	/	FALSE	1735689600	SecureNetflixId	value2&#10;.netflix.com	TRUE	/	FALSE	1735689600	nfvdid	value3"></textarea>
+                </div>
+                
+                <div id="file-method" class="method-pane">
+                    <label class="form-label fw-bold">Subir archivo de cookies (.txt):</label>
+                    <input type="file" class="form-control" id="cookies-file" accept=".txt">
+                    <small class="text-muted mt-2 d-block">Formato compatible: Netscape cookie</small>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <button class="btn btn-netflix" onclick="processCookies()">
+                        <i class="fas fa-magic"></i> Generar Tokens
+                    </button>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner-border text-danger" role="status"></div>
+                    <p class="mt-2">Procesando cookies, por favor espere...</p>
+                </div>
+                
+                <div id="results" style="display: none;">
+                    <div class="stats" id="stats"></div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5><i class="fas fa-list"></i> Resultados</h5>
+                        <button class="btn btn-sm btn-success" onclick="exportResults()">
+                            <i class="fas fa-download"></i> Guardar en .txt
+                        </button>
+                    </div>
+                    <div class="results-area" id="results-list"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer con copyright y créditos -->
+        <div class="footer">
+            <div class="footer-content">
+                <p class="credit">
+                    <i class="fas fa-code"></i> Desarrollado por <strong>@hacker056</strong>
+                </p>
+                <div class="social-links">
+                    <a href="https://github.com/hack056x" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="https://wa.me/18092165652" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://t.me/abelito_12" target="_blank"><i class="fab fa-telegram"></i></a>
+                    <a href="https://whatsapp.com/channel/0029VaAMgko05MUW81inJV04" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                </div>
+                <hr>
+                <p class="copyright">
+                    <i class="fas fa-copyright"></i> 2026 Netflix Token. Todos los derechos reservados.
+                </p>
+                
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentResults = null;
+        
+        function switchMethod(method) {
+            document.querySelectorAll('.method-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.method-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            
+            if (method === 'text') {
+                document.getElementById('text-method').classList.add('active');
+            } else {
+                document.getElementById('file-method').classList.add('active');
+            }
+        }
+        
+        async function processCookies() {
+            const formData = new FormData();
+            
+            const activePane = document.querySelector('.method-pane.active');
+            if (activePane.id === 'text-method') {
+                const text = document.getElementById('cookies-text').value.trim();
+                if (!text) {
+                    showError('Please paste your cookies first');
+                    return;
+                }
+                formData.append('cookies_text', text);
+            } else {
+                const file = document.getElementById('cookies-file').files[0];
+                if (!file) {
+                    showError('Please select a file first');
+                    return;
+                }
+                formData.append('file', file);
+            }
+            
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+                
+                currentResults = data.results;
+                displayResults(data);
+                
+            } catch (error) {
+                showError('Connection error: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        function displayResults(data) {
+            const statsDiv = document.getElementById('stats');
+            const resultsDiv = document.getElementById('results-list');
+            
+            const successRate = ((data.valid / data.total) * 100).toFixed(1);
+            statsDiv.innerHTML = `
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h3>${data.total}</h3>
+                        <small>Total Cookies</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-success">${data.valid}</h3>
+                        <small>Valid Tokens</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-danger">${data.total - data.valid}</h3>
+                        <small>Invalid</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h3>${successRate}%</h3>
+                        <small>Success Rate</small>
+                    </div>
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = '';
+            data.results.forEach(result => {
+                const card = document.createElement('div');
+                card.className = `result-card ${result.success ? 'success' : 'error'}`;
+                
+                if (result.success) {
+                    card.innerHTML = `
+                        <div class="result-header">
+                            <span class="token-badge">
+                                <i class="fas fa-key"></i> Token #${result.index}
+                            </span>
+                            <button class="copy-btn" onclick="copyToClipboard('${result.token}')">
+                                <i class="fas fa-copy"></i> Copy Token
+                            </button>
+                        </div>
+                        <div class="token-link">
+                            <strong>Token:</strong> <code>${result.token}</code>
+                        </div>
+                        <div class="token-link">
+                            <strong>Link:</strong> 
+                            <a href="${result.link}" target="_blank">${result.link}</a>
+                            <button class="copy-btn ms-2" onclick="copyToClipboard('${result.link}')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">Used cookies:</small><br>
+                            ${Object.entries(result.cookies).map(([k, v]) => 
+                                `<code>${k}: ${v}</code><br>`
+                            ).join('')}
+                        </div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="result-header">
+                            <span class="token-badge" style="background: #dc3545;">
+                                <i class="fas fa-exclamation-triangle"></i> Fallo #${result.index}
+                            </span>
+                        </div>
+                        <div class="text-danger">
+                            <strong>Error:</strong> ${result.error}
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">Attempted cookies:</small><br>
+                            ${Object.entries(result.cookies).map(([k, v]) => 
+                                `<code>${k}: ${v}</code><br>`
+                            ).join('')}
+                        </div>
+                    `;
+                }
+                
+                resultsDiv.appendChild(card);
+            });
+            
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        async function exportResults() {
+            if (!currentResults) return;
+            
+            try {
+                const response = await fetch('/export', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ results: currentResults })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const blob = new Blob([data.content], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = data.filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showSuccess('File exported successfully!');
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('Export error: ' + error.message);
+            }
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showSuccess('Copied to clipboard!');
+            }).catch(() => {
+                showError('Failed to copy');
+            });
+        }
+        
+        function showError(message) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger alert-dismissible fade show';
+            alert.innerHTML = `
+                <i class="fas fa-exclamation-circle"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 3000);
+        }
+        
+        function showSuccess(message) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show';
+            alert.innerHTML = `
+                <i class="fas fa-check-circle"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alert);
+            setTimeout(() => alert.remove(), 3000);
+        }
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
